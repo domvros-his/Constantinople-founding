@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Η ίδρυση της Κωνσταντινούπολης — Διαδραστικό αντικείμενο</title>
+<style>
+  :root {
+    --bg:#f5f5dc; --burgundy:#800020; --frame:#d6d6d6;
+    --text:#2b1b1b; --muted:rgba(43,27,27,.72);
+    --border:rgba(0,0,0,.15); --shadow:0 10px 25px rgba(0,0,0,.12);
+    --maxw:1100px;
+  }
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans",sans-serif;background:var(--bg);color:var(--text);}
+  header{max-width:var(--maxw);margin:0 auto;padding:18px 16px 10px;text-align:center;}
+  h1{margin:0 0 6px;color:var(--burgundy);font-size:clamp(22px,3.2vw,36px);letter-spacing:-.02em;}
+  .sub{margin:0 auto;max-width:82ch;color:var(--muted);font-size:14px;line-height:1.45;}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:12px;}
+  .btn{border:2px solid var(--burgundy);background:white;color:var(--burgundy);padding:10px 12px;border-radius:999px;cursor:pointer;font-weight:800;font-size:13px;box-shadow:var(--shadow);text-decoration:none;user-select:none;}
+  .btn:active{transform:translateY(1px)}
+  .stage-wrap{max-width:var(--maxw);margin:8px auto 0;padding:0 16px 18px;}
+  .frame{border:10px solid var(--frame);border-radius:22px;background:rgba(189,190,167,1);box-shadow:var(--shadow);overflow:hidden;}
+  #animation_container,#_preload_div_{position:absolute;margin:auto;left:0;right:0;top:0;bottom:0;}
+  .holder{position:relative;width:1280px;height:720px;margin:0 auto;}
+  .footer{max-width:var(--maxw);margin:6px auto 22px;padding:0 16px;text-align:center;color:var(--muted);font-size:12px;}
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:18px;z-index:50;}
+  .modal.open{display:flex;}
+  .modal-card{width:min(980px,100%);max-height:min(86vh,900px);overflow:auto;background:var(--bg);border:3px solid var(--burgundy);border-radius:18px;box-shadow:var(--shadow);}
+  .modal-head{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--border);padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between;}
+  .modal-title{font-weight:900;color:var(--burgundy);margin:0;font-size:16px;}
+  .modal-body{padding:14px;}
+  .logos{display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+  .logos img{max-height:64px;border-radius:10px;border:1px solid var(--border);background:white;}
+  .credits-text{white-space:pre-wrap;line-height:1.55;font-size:13px;}
+  @media (max-width: 1320px){.holder{width:100%;height:auto;aspect-ratio:16/9;} #animation_container{width:100% !important;height:100% !important;}}
+  @media print{header,.actions,.footer,.modal{display:none!important;}.stage-wrap{padding:0;}.frame{border:0;box-shadow:none;}}
+</style>
+<script src="./blibs/1.0.0/createjs.min.js"></script>
+<script src="./index.js"></script>
+</head>
+<body onload="init();">
+<div id="fileWarning" style="display:none;max-width:1100px;margin:12px auto 0;padding:12px 14px;border:2px solid rgba(128,0,32,.35);border-radius:16px;background:rgba(128,0,32,.08);color:#2b1b1b;font-weight:650;">⚠️ Αυτό το αντικείμενο δεν παίζει σωστά αν το ανοίξεις με διπλό κλικ (file://). Άνοιξέ το μέσω local server (π.χ. VS Code Live Server ή <span style="font-family:ui-monospace,Menlo,Consolas,monospace;">python -m http.server</span>) ή μέσω GitHub Pages.</div>
+
+<header>
+  <h1>Η ίδρυση της Κωνσταντινούπολης</h1>
+  <p class="sub">Έκδοση “GitHub Pages” (πολλαπλά αρχεία). Αν το ανοίγεις τοπικά και δεν φορτώνει, χρησιμοποίησε έναν μικρό local server (π.χ. VS Code Live Server).</p>
+  <div class="actions">
+    <a class="btn" href="https://photodentro.edu.gr/v/item/ds/8521/9473" target="_blank" rel="noopener">Άνοιγμα στο Photodentro</a>
+    <button class="btn" id="fsBtn">Πλήρης οθόνη</button>
+    <button class="btn" onclick="window.print()">Εκτύπωση</button>
+    <button class="btn" id="creditsBtn">Συντελεστές & άδεια</button>
+  </div>
+</header>
+
+<div class="stage-wrap">
+  <div class="frame">
+    <div class="holder">
+      <div id="animation_container" style="background-color:rgba(189, 190, 167, 1.00); width:1280px; height:720px">
+        <canvas id="canvas" width="1280" height="720" style="position:absolute; display:block; background-color:rgba(189, 190, 167, 1.00);"></canvas>
+        <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:1280px; height:720px; position:absolute; left:0; top:0; display:block;"></div>
+      </div>
+      <div id='_preload_div_' style='position:absolute; top:0; left:0; right:0; bottom:0; margin:auto; display:none; align-items:center; justify-content:center; background: rgba(245,245,220,.85);'>
+        <img src="bimages/_preloader.gif" alt="φόρτωση..." style="max-height:70px; opacity:.95;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">✨✍️ Created by Panagiotis Domvros, English and Drama Teacher, All Rights Reserved ✍️✨</div>
+
+<div class="modal" id="creditsModal" role="dialog" aria-modal="true" aria-label="Συντελεστές και άδεια">
+  <div class="modal-card">
+    <div class="modal-head">
+      <p class="modal-title">Συντελεστές & άδεια (από το πακέτο του αντικειμένου)</p>
+      <button class="btn" id="closeCredits">Κλείσιμο</button>
+    </div>
+    <div class="modal-body">
+      <div class="logos">
+        <img src="./credits/images/cc.png" alt="Creative Commons">
+        <img src="./credits/images/logos.jpg" alt="Λογότυπα">
+      </div>
+      <div class="credits-text" style="margin-top:12px;">Συντελεστές
+
+Το παρόν αναπτύχθηκε στο πλαίσιο του έργου 
+«Ψηφιακό Σχολείο Ι: «Ψηφιακή Εκπαιδευτική Πλατφόρμα, Διαδραστικά Βιβλία και Αποθετήριο Μαθησιακών Αντικειμένων» 
+του 
+ΕΠ «Εκπαίδευση και Δια Βίου Μάθηση»
+ του ΥΠΑΙΘ, το οποίο υλοποιήθηκε από το 
+ΙΤΥΕ «ΔΙΟΦΑΝΤΟΣ»
+ και συγχρηματοδοτήθηκε  από την Ευρωπαϊκή Ένωση 
+(Ευρωπαϊκό Κοινωνικό Ταμείο - ΕΚΤ)
+ και το Ελληνικό Δημόσιο στο πλαίσιο του ΕΣΠΑ 2007-2013.
+
+Επικαιροποιήθηκε στο πλαίσιο του ΠΕ9 «Ψηφιακά αποθετήρια «Φωτόδεντρο» και σχετικά συστήματα και υπηρεσίες για το Ψηφιακό Εκπαιδευτικό Περιεχόμενο» του έργου 
+«Υπηρεσίες ανάπτυξης εφαρμογών και πληροφοριακών συστημάτων»
+, που υλοποιείται από το ΙΤΥΕ ΔΙΟΦΑΝΤΟΣ (2023-2025) και χρηματοδοτείται από το Τομεακό Πρόγραμμα Ανάπτυξης (ΤΠΑ) του ΥΠΑΙΘ του ΕΠΑ 2021-2025, κωδ. Έργου ΟΠΣ (MIS) 5180856.
+
+Η ΙΔΡΥΣΗ ΤΗΣ ΚΩΝΣΤΑΝΤΙΝΟΥΠΟΛΗΣ
+
+Έκδοση:
+
+2.0
+
+Ημερομηνία:
+
+08.05.2023
+
+ΕΠΙΛΟΓΗ ΠΕΡΙΕΧΟΜΕΝΟΥ (ΕΚΔΟΣΗ 1.0):
+
+Έλενα Γκίκα
+, Εκπαιδευτικός ΠΕ02 Φιλολόγων, PhD
+
+ 
+
+ΠΑΙΔΑΓΩΓΙΚΟΣ -ΔΙΔΑΚΤΙΚΟΣ ΣΧΕΔΙΑΣΜΟΣ:(ΕΚΔΟΣΗ 1.0):
+
+Έλενα Γκίκα
+, Εκπαιδευτικός ΠΕ02 Φιλολόγων, PhD
+
+ 
+
+ΕΠΙΣΤΗΜΟΝΙΚΗ ΥΠΕΥΘΥΝΗ ΓΙΑ ΘΕΜΑΤΑ ΒΥΖΑΝΤΙΝΗΣ ΙΣΤΟΡΙΑΣ (ΕΚΔΟΣΗ 1.0):
+
+Φλώρα Καραγιάννη
+, Δρ. Βυζαντινής Αρχαιολογίας
+
+ 
+
+ΣΧΕΔΙΑΣΗ / ΑΝΑΠΤΥΞΗ ΕΦΑΡΜΟΓΗΣ (ΕΚΔΟΣΗ 1.0):
+
+Βασίλης Βασιλείου
+, Εκπαιδευτικός ΠΕ02 Φιλολόγων, MSc
+
+ 
+
+ΤΕΧΝΙΚΗ ΥΛΟΠΟΙΗΣΗ / ΕΠΙΚΑΙΡΟΠΟΙΗΣΗ (ΕΚΔΟΣΗ 2.0):
+
+Γιώργος Πισκοπάνης
+, Εικονογράφος-Γραφίστας
+
+ 
+
+ΣΥΝΤΟΝΙΣΤΗΣ ΟΜΑΔΑΣ ΣΧΕΔΙΑΣΜΟΥ ΚΑΙ ΑΝΑΠΤΥΞΗΣ / ΕΠΙΣΤΗΜΟΝΙΚΟΣ ΥΠΕΥΘΥΝΟΣ ΠΑΙΔΑΓΩΓΙΚΟΥ ΣΧΕΔΙΑΣΜΟΥ ΑΝΤΙΚΕΙΜΕΝΟΥ:
+
+Αρμόδιος Τσιβάς,
+ Συντονιστής Εκπαιδευτικού Έργου ΠΕ70 Δασκάλων, PhD
+
+ΣΥΝΤΕΛΕΣΤΕΣ
+
+ΧΟΡΗΓΟΣ ΑΔΕΙΑΣ ΧΡΗΣΗΣ:
+
+ΙΤΥΕ 
+&quot;ΔΙΟΦΑΝΤΟΣ&quot;
+
+ 
+
+ΕΚΔΟΤΗΣ:
+
+ΙΤΥΕ 
+&quot;ΔΙΟΦΑΝΤΟΣ&quot;
+
+ΑΠΟΘΕΤΗΡΙΟ ΠΡΟΕΛΕΥΣΗΣ:  
+ΦΩΤΟΔΕΝΤΡΟ ΜΑΘΗΣΙΑΚΑ ΑΝΤΙΚΕΙΜΕΝΑ (LOR)
+
+Το παρόν χορηγείται με άδεια CC BY-NC-SA 4.0. 
+(Creative Commons Attribution-NonCommercial-ShareAlike Greece 4.0)
+, δηλαδή, διατίθεται για ελεύθερη χρήση, αναπαραγωγή, αναδιανομή, παρουσίαση και αξιοποίηση, με την προϋπόθεση να μην υπάρχει πρόθεση εμπορικής εκμετάλλευσης. Απαιτείται αναφορά του δημιουργού ή του δικαιούχου της άδειας. Οποιοδήποτε παράγωγο έργο μπορεί να διανεμηθεί μόνο με την ίδια ή παρόμοια άδεια.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const fsBtn = document.getElementById('fsBtn');
+  fsBtn.addEventListener('click', async () => {
+    const el = document.querySelector('.frame');
+    if (!document.fullscreenElement) {
+      try { await el.requestFullscreen(); } catch (e) {}
+    } else {
+      try { await document.exitFullscreen(); } catch (e) {}
+    }
+  });
+  const modal = document.getElementById('creditsModal');
+  document.getElementById('creditsBtn').addEventListener('click', () => modal.classList.add('open'));
+  document.getElementById('closeCredits').addEventListener('click', () => modal.classList.remove('open'));
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('open'); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') modal.classList.remove('open'); });
+</script>
+
+<script>
+(function(){
+  try{
+    if (location.protocol === "file:") {
+      var w = document.getElementById("fileWarning");
+      if (w) w.style.display = "block";
+    }
+    // If init is missing, show a visible error instead of a blank screen
+    window.addEventListener("load", function(){
+      if (typeof window.init !== "function") {
+        var w = document.getElementById("fileWarning");
+        if (w) {
+          w.style.display = "block";
+          w.innerHTML = "❌ Δεν βρέθηκε η συνάρτηση <span style=\"font-family:ui-monospace,Menlo,Consolas,monospace;\">init()</span>. Έλεγξε ότι υπάρχουν δίπλα στο <b>index.html</b> τα αρχεία <b>index.js</b> και ο φάκελος <b>blibs/</b>.";
+        }
+      }
+    });
+  }catch(e){}
+})();
+</script>
+
+</body>
+</html>
